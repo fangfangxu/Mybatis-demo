@@ -19,11 +19,11 @@ public class TestJdbc {
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/oa?characterEncoding=utf-8&serverTimezone=UTC", "root", "123456");
             //定义sql语句
             String sql = "select * from employee where sn=?";
-            //获取statement
+            //获取预处理 statement
             preparedStatement = connection.prepareStatement(sql);
             //设置参数
             preparedStatement.setString(1,"10001");
-            //向数据库发起执行
+            //向数据库发出 sql 执行查询，查询出结果集
             rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 System.out.println(rs.getString("sn") + " " + rs.getString("name"));
