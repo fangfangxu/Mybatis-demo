@@ -1,17 +1,14 @@
 package test1;
 
-
 import org.junit.Test;
 
-import javax.swing.plaf.synth.SynthStyle;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.*;
 
-public class ReMybatisV1 {
-
+public class ReMybatisV2 {
     private Properties properties=new Properties();
 
     private void loadProperties(){
@@ -70,7 +67,7 @@ public class ReMybatisV1 {
                     preparedStatement.setObject(i+1, ((Map) param).get(requesName));
                 }
             }else{
-               //POJO
+                //POJO
                 Class<?> parameterTypeClass =param.getClass();
                 String requestParams=properties.getProperty("db."+statementId+".requestParams");
                 String[] requestArray = requestParams.split(",");
@@ -93,11 +90,11 @@ public class ReMybatisV1 {
                 ResultSetMetaData metaData = rs.getMetaData();
                 int count=metaData.getColumnCount();
                 for(int i=0;i<count;i++){
-                  String columnName= metaData.getColumnName(i+1);
-                  Object value=rs.getObject(columnName);
-                  Field filed = returnTypeClass.getDeclaredField(columnName);
-                  filed.setAccessible(true);
-                  filed.set(o,value);
+                    String columnName= metaData.getColumnName(i+1);
+                    Object value=rs.getObject(columnName);
+                    Field filed = returnTypeClass.getDeclaredField(columnName);
+                    filed.setAccessible(true);
+                    filed.set(o,value);
                 }
                 results.add((T) o);
             }
@@ -130,6 +127,5 @@ public class ReMybatisV1 {
         }
         return results;
     }
-
 
 }
