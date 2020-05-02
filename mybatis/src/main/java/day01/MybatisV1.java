@@ -1,9 +1,11 @@
-package com.mybatis.day01;
+package day01;
 
 
-import com.mybatis.day01.po.Employee;
-import com.mybatis.day01.utils.SimpleTypeRegistry;
-import org.junit.jupiter.api.Test;
+
+
+import day01.po.Employee;
+import day01.utils.SimpleTypeRegistry;
+import org.junit.Test;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -21,7 +23,7 @@ public class MybatisV1 {
      */
     private void loadProperties() {
         try {
-            String name = "jdbc.properties";
+            String name = "day01/jdbc.properties";
             InputStream ins = this.getClass().getClassLoader().getResourceAsStream(name);
             properties.load(ins);
         } catch (Exception e) {

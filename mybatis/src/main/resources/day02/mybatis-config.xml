@@ -17,6 +17,6 @@
 	<mappers>
 		<!-- resource指定映射文件的类路径 -->
 		<mapper resource="mapper/EmployeeMapper.xml"></mapper>
-		<package name="" />
+<!--		<package name="" />-->
 	</mappers>
 </configuration>

@@ -1,4 +1,4 @@
-package com.mybatis.day01.po;
+package day01.po;
 
 public class Employee {
     private String sn;

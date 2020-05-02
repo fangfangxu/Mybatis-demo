@@ -1,5 +1,5 @@
 
-package com.mybatis.day01.utils;
+package day01.utils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
