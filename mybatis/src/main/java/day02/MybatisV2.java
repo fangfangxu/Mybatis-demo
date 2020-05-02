@@ -95,6 +95,7 @@ public class MybatisV2 {
 
         statementId = namespace + "." + statementId;
         String statementType = selectElement.attributeValue("statementType");
+        statementType=statementType==null|| statementType==""?"prepared":statementType;
 
         String parameterTypeName = selectElement.attributeValue("parameterType");
         String resultTypeClassName = selectElement.attributeValue("resultType");
@@ -110,7 +111,13 @@ public class MybatisV2 {
         configuration.addMappedStatements(statementId, mappedStatement);
     }
 
-    //TO DO
+
+    /**
+     * SqlSource的封装过程
+     * @param selectElement
+     * @return
+     */
+    //TODO
     private SqlSource createSqlSource(Element selectElement) {
         return null;
     }
@@ -214,7 +221,7 @@ public class MybatisV2 {
             //（2）再获取MappedStatement中的SqlSource
             SqlSource sqlSource = mappedStatement.getSqlSource();
             //（3）通过SqlSource的API处理，获取BoundSql
-            //TO DO
+            //TODO
             BoundSql boundSql = sqlSource.getBoundSql(params);
             //（4）通过BoundSql获取到SQL语句
             String sql = boundSql.getSql();
