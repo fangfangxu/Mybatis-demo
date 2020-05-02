@@ -34,7 +34,8 @@ public class MybatisV1 {
     public void test() {
         //需求：查询用户信息
         loadProperties();
-        List<Employee> employees = selectUserList("queryUserBySn", "10001");
+//        List<Employee> employees = selectUserList("queryUserBySn", "10001");
+        List<Employee> employees = selectUserList("queryUserBySn", "刘备");
         System.out.println(employees);
     }
 
