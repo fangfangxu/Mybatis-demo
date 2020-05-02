@@ -1,5 +1,6 @@
 package com.mybatis.day01;
 
+
 import com.mybatis.day01.po.Employee;
 import org.junit.jupiter.api.Test;
 
@@ -39,12 +40,14 @@ public class MybatisV1 {
         System.out.println(employees);
     }
 
-    private List<Employee> selectUserList(String statementId, String param) {
+
+    //private List<Employee> selectUserList(String statementId, Object param) {
+    private <T> List<T> selectUserList(String statementId, Object param) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet rs = null;
 
-        List<Employee> employees = new ArrayList<>();
+        List<T> results = new ArrayList<>();
         try {
             //加载数据库驱动
             Class.forName(properties.getProperty("db.driver"));
@@ -59,7 +62,8 @@ public class MybatisV1 {
             preparedStatement = connection.prepareStatement(sql);
             //设置参数
             //参数处理
-            preparedStatement.setString(1, param);
+//            preparedStatement.setString(1, param);
+            preparedStatement.setObject(1, param);
             //向数据库发出 sql 执行查询，查询出结果集
             rs = preparedStatement.executeQuery();
             //遍历结果集
@@ -73,21 +77,21 @@ public class MybatisV1 {
             while (rs.next()) {
                 //System.out.println(rs.getString("sn") + " " + rs.getString("name"));
                 //结果处理
-                Object employee = resultType.newInstance();
+                Object result = resultType.newInstance();
                 //给字段赋值
                 ResultSetMetaData metaData = rs.getMetaData();
-                int columnCount= metaData.getColumnCount();
-                for(int i=1;i<=columnCount;i++){
+                int columnCount = metaData.getColumnCount();
+                for (int i = 1; i <= columnCount; i++) {
                     //获取列名称
-                    String columnName=metaData.getColumnName(i);
+                    String columnName = metaData.getColumnName(i);
                     Field field = resultType.getDeclaredField(columnName);
                     field.setAccessible(true);
-                    field.set(employee,rs.getObject(columnName));
+                    field.set(result, rs.getObject(columnName));
                 }
-                employees.add((Employee)employee);
+                results.add((T) result);
             }
 
-            return employees;
+            return results;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -116,8 +120,6 @@ public class MybatisV1 {
                     e.printStackTrace();
                 }
             }
-
-
         }
         return null;
     }
