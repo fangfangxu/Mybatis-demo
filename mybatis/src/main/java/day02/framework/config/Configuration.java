@@ -34,6 +34,6 @@ public class Configuration {
 //    }
 
     public void addMappedStatements(String statementId, MappedStatement mappedStatement) {
-        this.mappedStatements.put("statementId", mappedStatement);
+        this.mappedStatements.put(statementId, mappedStatement);
     }
 }
