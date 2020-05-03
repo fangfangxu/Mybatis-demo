@@ -14,7 +14,12 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.13</version>
         </dependency>
-
+        <!-- mybatis依赖 -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.4.6</version>
+        </dependency>
         <!-- dbcp连接池依赖 -->
         <dependency>
             <groupId>commons-dbcp</groupId>
