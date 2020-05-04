@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
-    <properties resource="record/db.properties"></properties>
+    <properties resource="record01/db.properties"></properties>
     <environments default="development">
         <environment id="development">
             <transactionManager type="JDBC"/>
@@ -14,6 +14,6 @@
         </environment>
     </environments>
     <mappers>
-        <mapper resource="record/UserMapper.xml"/>
+        <mapper resource="record01/UserMapper.xml"/>
     </mappers>
 </configuration>

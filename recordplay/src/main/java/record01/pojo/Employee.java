@@ -1,4 +1,4 @@
-package record.pojo;
+package record01.pojo;
 
 public class Employee {
     private String sn;

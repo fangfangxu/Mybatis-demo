@@ -1,6 +1,6 @@
-package record.dao;
+package record01.dao;
 
-import record.pojo.Employee;
+import record01.pojo.Employee;
 
 
 public interface EmployeeDao {

@@ -1,8 +1,8 @@
-package record.dao;
+package record01.dao;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import record.pojo.Employee;
+import record01.pojo.Employee;
 
 
 public class EmployeeDaoImpl implements EmployeeDao {
