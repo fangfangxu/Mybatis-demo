@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="record04.dao.UserMapper">
+
+    <resultMap id="ordersAndUserRstMap" type="record04.pojo.OrdersExt">
+            <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="number" property="number"/>
+        <result column="createtime" property="createtime"/>
+        <result column="note" property="note"/>
+        <!--一对一关联映射-->
+         <!--property:Orders对象的user属性
+          javaType:user属性对应的类型-->
+        <association property="user" javaType="record04.pojo.User">
+            <id column="id" property="id"/>
+            <result column="username" property="username"/>
+            <result column="address" property="address"/>
+        </association>
+    </resultMap>
+
+    <select id="findOrdersAndUserRstMap" resultMap="ordersAndUserRstMap">
+            select
+            o.id,
+            o.user_id,
+            o.number,
+            o.createtime,
+            o.note,
+            u.username,
+            u.address
+            from orders o
+            join user u on u.id=o.user_id
+    </select>
+</mapper>
