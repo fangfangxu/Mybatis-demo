@@ -30,7 +30,8 @@
 
 
     <mappers>
-        <mapper resource="pagehelper/UserMapper.xml"/>
+<!--  <mapper resource="pagehelper/UserMapper.xml"/>-->
+        <mapper class="pagehelper.dao.UserMapper"/>
     </mappers>
 
 </configuration>
