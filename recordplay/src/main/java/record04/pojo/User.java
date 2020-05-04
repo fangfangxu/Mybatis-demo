@@ -1,6 +1,7 @@
 package record04.pojo;
 
 import java.util.Date;
+import java.util.List;
 
 public class User {
     private int id;
@@ -8,6 +9,16 @@ public class User {
     private Date birthday;
     private String sex;
     private String address;
+    //一对多映射
+    private List<Orders> orders;
+
+    public List<Orders> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Orders> orders) {
+        this.orders = orders;
+    }
 
     public int getId() {
         return id;
@@ -57,6 +68,7 @@ public class User {
                 ", birthday=" + birthday +
                 ", sex='" + sex + '\'' +
                 ", address='" + address + '\'' +
+                ", orders=" + orders +
                 '}';
     }
 }

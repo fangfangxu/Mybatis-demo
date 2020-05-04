@@ -2,8 +2,13 @@
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
     <properties resource="record04/db.properties"></properties>
+    <typeAliases>
+        <package name="record04.pojo"/>
+    </typeAliases>
     <environments default="development">
+
         <environment id="development">
+
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED">
                 <property name="driver" value="${db.driver}"/>
@@ -16,4 +21,5 @@
     <mappers>
         <mapper resource="record04/UserMapper.xml"/>
     </mappers>
+
 </configuration>

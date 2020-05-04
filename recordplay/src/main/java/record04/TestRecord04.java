@@ -7,8 +7,10 @@ import org.junit.Before;
 import org.junit.Test;
 import record04.dao.UserMapper;
 import record04.pojo.OrdersExt;
+import record04.pojo.User;
 
 import java.io.InputStream;
+import java.util.List;
 
 public class TestRecord04 {
     private SqlSessionFactory sqlSessionFactory;
@@ -27,7 +29,10 @@ public class TestRecord04 {
     public void findOrdersAndUserRstMap(){
         SqlSession sqlSession = sqlSessionFactory.openSession();
         UserMapper mapper = sqlSession.getMapper(UserMapper.class);
-        OrdersExt ordersExt = mapper.findOrdersAndUserRstMap();
-        System.out.println(ordersExt);
+//        OrdersExt ordersExt = mapper.findOrdersAndUserRstMap();
+//        System.out.println(ordersExt);
+
+        List<User> users = mapper.finduserAndOrderRstMap();
+        System.out.println(users);
     }
 }
