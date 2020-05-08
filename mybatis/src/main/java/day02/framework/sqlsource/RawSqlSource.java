@@ -4,9 +4,9 @@ import day02.framework.sqlnode.MixedSqlNode;
 import day02.framework.sqlsource.iface.SqlSource;
 
 /**
- * 封装带有${}或者动态标签的整个SQL信息
+ * 封装不带有${}和动态标签的整个SQL信息、比如整个sql语句只包含#{}
  */
-public class DynamicSqlSource implements SqlSource {
+public class RawSqlSource implements SqlSource {
     private MixedSqlNode rootSqlNode;
 
     /**
@@ -14,7 +14,7 @@ public class DynamicSqlSource implements SqlSource {
      * 包含了所有的SqlNode节点
      * @param rootSqlNode
      */
-    public DynamicSqlSource(MixedSqlNode rootSqlNode) {
+    public RawSqlSource(MixedSqlNode rootSqlNode) {
         this.rootSqlNode = rootSqlNode;
     }
 

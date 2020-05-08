@@ -7,7 +7,9 @@ import day02.framework.config.Configuration;
 import day02.framework.config.MappedStatement;
 import day02.framework.sqlnode.MixedSqlNode;
 import day02.framework.sqlsource.BoundSql;
+import day02.framework.sqlsource.DynamicSqlSource;
 import day02.framework.sqlsource.ParameterMapping;
+import day02.framework.sqlsource.RawSqlSource;
 import day02.framework.sqlsource.iface.SqlSource;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.dom4j.Document;
@@ -221,8 +223,6 @@ public class MybatisV2 {
 
        //一、解析Sql脚本信息
       MixedSqlNode rootSqlNode= parseDynamicTags(selectElement);
-
-
         //二、
         //将SqlNode封装到SqlSource对象当中
         //思考？封装到哪个SqlSource对象中
@@ -237,6 +237,17 @@ public class MybatisV2 {
             sqlSource=new RawSqlSource(rootSqlNode);
         }
         return sqlSource;
+    }
+
+    /**
+     * 解析Sql脚本信息
+     * @param selectElement
+     * @return
+     */
+    private MixedSqlNode parseDynamicTags(Element selectElement) {
+
+
+
     }
 
     private Class<?> resolveType(String type) throws Exception {
