@@ -5,6 +5,8 @@ import day02.framework.sqlsource.iface.SqlSource;
 
 /**
  * 封装带有${}或者动态标签的整个SQL信息
+ * SQL语句：select * from user where id=${id}
+ * 每次执行时，都需要处理${}
  */
 public class DynamicSqlSource implements SqlSource {
     private MixedSqlNode rootSqlNode;
