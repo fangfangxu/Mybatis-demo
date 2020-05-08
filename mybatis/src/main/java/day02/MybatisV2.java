@@ -5,6 +5,7 @@ import day01.po.Employee;
 import day01.utils.SimpleTypeRegistry;
 import day02.framework.config.Configuration;
 import day02.framework.config.MappedStatement;
+import day02.framework.sqlnode.MixedSqlNode;
 import day02.framework.sqlsource.BoundSql;
 import day02.framework.sqlsource.ParameterMapping;
 import day02.framework.sqlsource.iface.SqlSource;
@@ -30,6 +31,27 @@ public class MybatisV2 {
     //private Properties properties = new Properties();
     private Configuration configuration = new Configuration();
     private String namespace;
+    /**
+     *  提成全局
+     */
+    //如果包含${}或者动态标签那么为true
+    private boolean isDynamic=false;
+
+    @Test
+    public void test() throws Exception {
+        //需求：查询用户信息
+        loadConfiguration();
+        //支持简单类型
+        List<Employee> employees = selectUserList("queryUserBySn", "孙尚香");
+        System.out.println(employees);
+        //支持Map
+        Map<String, Object> params = new HashMap<>();
+        params.put("name", "孙尚香");
+        params.put("sn", "10002");
+        List<Employee> employees1 = selectUserList("queryUserBySn", params);
+        System.out.println(employees1);
+
+    }
 
     /**
      * 加载Xml文件
@@ -41,6 +63,69 @@ public class MybatisV2 {
         //按照mybatis的语义，对XML内容进行解析
         parseConfiguration(document.getRootElement());
 
+    }
+
+
+    private <T> List<T> selectUserList(String statementId, Object params) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet rs = null;
+        List<T> results = new ArrayList<>();
+        try {
+            connection = getConnection();
+//            String sql = properties.getProperty("db.sql." + statementId);
+            //（1）先要获取MappedStatement
+            MappedStatement mappedStatement = configuration.getMappedStatementById(statementId);
+            //（2）再获取MappedStatement中的SqlSource
+            SqlSource sqlSource = mappedStatement.getSqlSource();
+            //（3）通过SqlSource的API处理，获取BoundSql
+            //TODO
+            /**
+             * SqlSource的执行过程
+             */
+            BoundSql boundSql = sqlSource.getBoundSql(params);
+            //（4）通过BoundSql获取到SQL语句
+            String sql = boundSql.getSql();
+            //获取预处理 statement
+            preparedStatement = connection.prepareStatement(sql);
+
+            //参数处理
+            //设置参数
+            setParameters(preparedStatement, params, boundSql);
+            //向数据库发出sql执行查询，查询出结果集
+            rs = preparedStatement.executeQuery();
+            //处理结果集
+            handleResultSet(rs, results, mappedStatement);
+            return results;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
     }
 
     private void parseConfiguration(Element rootElement) throws Exception {
@@ -102,9 +187,12 @@ public class MybatisV2 {
 
         Class<?> parameterTypeClass = resolveType(parameterTypeName);
         Class<?> resultTypeClass = resolveType(resultTypeClassName);
-
-        //SqlSource的封装过程
+         //TODO
+        /**
+         * SqlSource的封装过程
+         */
         SqlSource sqlSource = createSqlSource(selectElement);
+
         //TO DO 建议使用构建者模式去优化
         MappedStatement mappedStatement = new MappedStatement(statementId, sqlSource, statementType,
                 parameterTypeClass, resultTypeClass);
@@ -119,7 +207,36 @@ public class MybatisV2 {
      */
     //TODO
     private SqlSource createSqlSource(Element selectElement) {
-        return null;
+        SqlSource sqlSource=  parseScriptNode(selectElement);
+        return sqlSource;
+    }
+
+    /**
+     * 用来处理脚本节点
+     * 处理select等标签下的SQL脚本
+     * @param selectElement
+     * @return
+     */
+    private SqlSource parseScriptNode(Element selectElement) {
+
+       //一、解析Sql脚本信息
+      MixedSqlNode rootSqlNode= parseDynamicTags(selectElement);
+
+
+        //二、
+        //将SqlNode封装到SqlSource对象当中
+        //思考？封装到哪个SqlSource对象中
+          //DynamicSqlSource
+          //RawSqlSource
+        SqlSource sqlSource=null;
+        if(isDynamic){
+            //DynamicSqlSource
+            sqlSource=new DynamicSqlSource(rootSqlNode);
+        }else{
+            //RawSqlSource
+            sqlSource=new RawSqlSource(rootSqlNode);
+        }
+        return sqlSource;
     }
 
     private Class<?> resolveType(String type) throws Exception {
@@ -185,87 +302,10 @@ public class MybatisV2 {
         return this.getClass().getClassLoader().getResourceAsStream(location);
     }
 
-    @Test
-    public void test() throws Exception {
-        //需求：查询用户信息
-        loadConfiguration();
-        //支持简单类型
-        List<Employee> employees = selectUserList("queryUserBySn", "孙尚香");
-        System.out.println(employees);
-        //支持Map
-        Map<String, Object> params = new HashMap<>();
-        params.put("name", "孙尚香");
-        params.put("sn", "10002");
-        List<Employee> employees1 = selectUserList("queryUserBySn", params);
-        System.out.println(employees1);
-
-        //支持Pojo
-        Employee employee = new Employee();
-        employee.setName("孙尚香");
-        employee.setSn("10002");
-        List<Employee> employees2 = selectUserList("queryUserBySn", employee);
-        System.out.println(employees2);
-    }
 
 
-    private <T> List<T> selectUserList(String statementId, Object params) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet rs = null;
-        List<T> results = new ArrayList<>();
-        try {
-            connection = getConnection();
-//            String sql = properties.getProperty("db.sql." + statementId);
-            //（1）先要获取MappedStatement
-            MappedStatement mappedStatement = configuration.getMappedStatementById(statementId);
-            //（2）再获取MappedStatement中的SqlSource
-            SqlSource sqlSource = mappedStatement.getSqlSource();
-            //（3）通过SqlSource的API处理，获取BoundSql
-            //TODO
-            BoundSql boundSql = sqlSource.getBoundSql(params);
-            //（4）通过BoundSql获取到SQL语句
-            String sql = boundSql.getSql();
-            //获取预处理 statement
-            preparedStatement = connection.prepareStatement(sql);
 
-            //参数处理
-            //设置参数
-            setParameters(preparedStatement, params, boundSql);
-            //向数据库发出sql执行查询，查询出结果集
-            rs = preparedStatement.executeQuery();
-            //处理结果集
-            handleResultSet(rs, results, mappedStatement);
-            return results;
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return null;
-    }
 
     /**
      * 处理结果集
