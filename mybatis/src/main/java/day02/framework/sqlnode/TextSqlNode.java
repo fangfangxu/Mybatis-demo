@@ -19,4 +19,15 @@ public class TextSqlNode implements SqlNode {
     public TextSqlNode(String sqlText) {
         this.sqlText = sqlText;
     }
+
+    /**
+     * 谁封装sqlText，谁对sqlText最了解，判断是否有${}
+     * @return
+     */
+    public boolean isDynamic(){
+        if(sqlText.indexOf("${")>-1){
+            return true;
+        }
+        return false;
+    }
 }
