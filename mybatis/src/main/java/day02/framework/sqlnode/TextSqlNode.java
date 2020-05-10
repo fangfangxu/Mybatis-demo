@@ -1,6 +1,7 @@
 package day02.framework.sqlnode;
 
 import day02.framework.sqlnode.iface.SqlNode;
+import day02.framework.sqlnode.support.DynamicContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,5 +30,13 @@ public class TextSqlNode implements SqlNode {
             return true;
         }
         return false;
+    }
+
+
+    @Override
+    public void apply(DynamicContext context) {
+
+
+
     }
 }

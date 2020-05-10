@@ -1,6 +1,7 @@
 package day02.framework.sqlsource;
 
 import day02.framework.sqlnode.MixedSqlNode;
+import day02.framework.sqlnode.support.DynamicContext;
 import day02.framework.sqlsource.iface.SqlSource;
 
 /**
@@ -27,6 +28,14 @@ public class DynamicSqlSource implements SqlSource {
      */
     @Override
     public BoundSql getBoundSql(Object param) {
+        //在此处解析SqlNode集合,合并成一条SQL语句（可能还带有#{}、但是已经处理了${}和动态标签）
+        //SqlSource封装SqlNode的上下文DynamicContext
+        DynamicContext context=new DynamicContext(param);
+        rootSqlNode.apply(context);
+
+
+
+        //针对#{}进行处理
         return null;
     }
 }

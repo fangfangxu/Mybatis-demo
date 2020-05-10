@@ -19,6 +19,12 @@ public class RawSqlSource implements SqlSource {
      * @param rootSqlNode
      */
     public RawSqlSource(MixedSqlNode rootSqlNode) {
+        //在此处解析SqlNode集合
+
+
+
+
+
         this.rootSqlNode = rootSqlNode;
     }
 
