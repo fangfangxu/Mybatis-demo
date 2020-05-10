@@ -26,9 +26,9 @@ public class IfSqlNode implements SqlNode {
     @Override
     public void apply(DynamicContext context) {
         //获取入参对象
-        Map<String, Object> bindings = context.getBindings();
+        Object parameterObject = context.getBindings().get("_parameter");
         //使用OGNL工具类去判断表达式
-        boolean evaluateBoolean = OgnlUtils.evaluateBoolean(test, bindings);
+        boolean evaluateBoolean = OgnlUtils.evaluateBoolean(test, parameterObject);
         if(evaluateBoolean){
             mixedSqlNode.apply(context);
         }

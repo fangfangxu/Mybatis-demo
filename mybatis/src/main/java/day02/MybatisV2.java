@@ -15,6 +15,7 @@ import day02.framework.sqlsource.DynamicSqlSource;
 import day02.framework.sqlsource.ParameterMapping;
 import day02.framework.sqlsource.RawSqlSource;
 import day02.framework.sqlsource.iface.SqlSource;
+import day02.po.User;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -50,15 +51,12 @@ public class MybatisV2 {
         //需求：查询用户信息
         loadConfiguration();
         //支持简单类型
-        List<Employee> employees = selectUserList("queryUserBySn", "孙尚香");
-        System.out.println(employees);
-        //支持Map
-        Map<String, Object> params = new HashMap<>();
-        params.put("name", "孙尚香");
-        params.put("sn", "10002");
-        List<Employee> employees1 = selectUserList("queryUserBySn", params);
-        System.out.println(employees1);
-
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("username", "方方5");
+        params.put("id", 5);
+        // params.put("sex", "男");
+        List<User> users = selectUserList("test.findUserById", params);
+        System.out.println(users);
     }
 
     /**
@@ -71,6 +69,246 @@ public class MybatisV2 {
         //按照mybatis的语义，对XML内容进行解析
         parseConfiguration(document.getRootElement());
 
+    }
+
+    private void parseConfiguration(Element rootElement) throws Exception {
+        Element envirsElement = rootElement.element("environments");
+        parseEnvironments(envirsElement);
+        Element mappersElement = rootElement.element("mappers");
+        parseMappers(mappersElement);
+    }
+
+
+    private void parseEnvironments(Element envirsElement) {
+        String defaultId = envirsElement.attributeValue("default");
+        List<Element> environments = envirsElement.elements("environment");
+        for (Element element : environments) {
+            if (element.attributeValue("id").equals(defaultId)) {
+                parseDataSource(element);
+                break;
+
+            }
+        }
+    }
+
+    /**
+     * 解析数据源、放入Configuration中
+     *
+     * @param element
+     */
+    private void parseDataSource(Element element) {
+        Element dataSourceElement = element.element("dataSource");
+        String type = dataSourceElement.attributeValue("type");
+        if (type.equals("DBCP")) {
+            BasicDataSource dataSource = new BasicDataSource();
+            Properties properties = parseProperties(dataSourceElement);
+
+            dataSource.setDriverClassName(properties.getProperty("driver"));
+            dataSource.setUrl(properties.getProperty("url"));
+            dataSource.setUsername(properties.getProperty("username"));
+            dataSource.setPassword(properties.getProperty("password"));
+            configuration.setDataSource(dataSource);
+        }
+    }
+
+
+    private Properties parseProperties(Element dataSourceElement) {
+        Properties properties = new Properties();
+        List<Element> propertys = dataSourceElement.elements("property");
+        for (Element element : propertys) {
+            String name = element.attributeValue("name");
+            String value = element.attributeValue("value");
+            properties.put(name, value);
+        }
+        return properties;
+    }
+
+    private void parseMappers(Element mappersElement) throws Exception {
+        List<Element> mappers = mappersElement.elements("mapper");
+        for (Element mapperElement : mappers) {
+            parseMapper(mapperElement);
+        }
+    }
+
+    /**
+     * 解析Mapper
+     *
+     * @param mapperElement
+     */
+    private void parseMapper(Element mapperElement) throws Exception {
+        String resource = mapperElement.attributeValue("resource");
+        InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(resource);
+        Document document = createDocument(resourceAsStream);
+        //按照映射文件的语义进行解析
+        parseXmlMapper(document.getRootElement());
+    }
+
+    private void parseXmlMapper(Element rootElement) throws Exception {
+        namespace = rootElement.attributeValue("namespace");
+        List<Element> selectElements = rootElement.elements("select");
+        for (Element selectElement : selectElements) {
+            parseStatementElement(selectElement);
+        }
+
+    }
+
+
+    /**
+     * MappedStatement
+     *
+     * @param selectElement
+     */
+    private void parseStatementElement(Element selectElement) throws Exception {
+        String statementId = selectElement.attributeValue("id");
+        if (statementId == null || statementId.equals("")) {
+            return;
+        }
+        //一个CRUD标签对应一个MappedStatement对象
+        //一个MappedStatement对象有一个statementId来标识，来保证唯一
+        //statementId=namespace+"."+CRUD标签的id属性
+
+        statementId = namespace + "." + statementId;
+        String statementType = selectElement.attributeValue("statementType");
+        statementType = statementType == null || statementType == "" ? "prepared" : statementType;
+
+        String parameterTypeName = selectElement.attributeValue("parameterType");
+        String resultTypeClassName = selectElement.attributeValue("resultType");
+
+        Class<?> parameterTypeClass = resolveType(parameterTypeName);
+        Class<?> resultTypeClass = resolveType(resultTypeClassName);
+
+        /**
+         * SqlSource的封装过程
+         */
+        SqlSource sqlSource = createSqlSource(selectElement);
+
+        //TODO 建议使用构建者模式去优化
+        MappedStatement mappedStatement = new MappedStatement(statementId, sqlSource, statementType,
+                parameterTypeClass, resultTypeClass);
+        configuration.addMappedStatements(statementId, mappedStatement);
+    }
+
+
+    /**
+     * SqlSource的封装过程
+     *
+     * @param selectElement
+     * @return
+     */
+    //TODO
+    private SqlSource createSqlSource(Element selectElement) {
+        SqlSource sqlSource = parseScriptNode(selectElement);
+        return sqlSource;
+    }
+
+
+    /**
+     * 用来处理脚本节点
+     * 处理select等标签下的SQL脚本
+     *
+     * @param selectElement
+     * @return
+     */
+    private SqlSource parseScriptNode(Element selectElement) {
+
+        //一、解析Sql脚本信息
+        MixedSqlNode rootSqlNode = parseDynamicTags(selectElement);
+        //二、
+        //将SqlNode封装到SqlSource对象当中
+        //思考？封装到哪个SqlSource对象中
+        //DynamicSqlSource
+        //RawSqlSource
+        SqlSource sqlSource = null;
+        if (isDynamic) {
+            //DynamicSqlSource
+            sqlSource = new DynamicSqlSource(rootSqlNode);
+        } else {
+            //RawSqlSource
+            sqlSource = new RawSqlSource(rootSqlNode);
+        }
+        return sqlSource;
+    }
+
+
+    /**
+     * 解析Sql脚本信息
+     *
+     * @param selectElement
+     * @return
+     */
+    private MixedSqlNode parseDynamicTags(Element selectElement) {
+        List<SqlNode> sqlNodes = new ArrayList<>();
+
+        //获取select标签的子节点的总数
+        int nodeCount = selectElement.nodeCount();
+        //遍历所有子节点
+        for (int i = 0; i < nodeCount; i++) {
+            Node node = selectElement.node(i);
+            //判断子节点是文本节点还是元素节点
+            if (node instanceof Text) {
+                //获取文本信息
+                String sqlText = node.getText();
+                if (sqlText == null || "".equals(sqlText)) {
+                    continue;
+                }
+                //将sql文本封装到TextSqlNode
+                TextSqlNode textSqlNode = new TextSqlNode(sqlText);
+                //判断文本中是否有${},这个文本是TextSqlNode给我提供的，
+                //那个是否包含${}，给我提供文本的人告诉我
+                //谁封装sqlText，谁对sqlText最了解，判断是否有${}
+                if (textSqlNode.isDynamic()) {
+                    //如果包含${}
+                    isDynamic = true;
+                    sqlNodes.add(textSqlNode);
+                } else {
+                    //如果不包含${}
+                    sqlNodes.add(new StaticTextSqlNode(sqlText));
+                }
+
+            } else if (node instanceof Element) {
+                //元素 :本身就是一个动态标签
+                Element element = (Element) node;
+                String elementName = element.getName();
+                if (elementName.equals("if")) {
+                    String test = element.attributeValue("test");
+                    /**
+                     * 递归封装SqlNode数据
+                     */
+                    MixedSqlNode mixedSqlNode = parseDynamicTags(element);
+                    //封装IfSqlNode数据
+                    IfSqlNode ifSqlNode = new IfSqlNode(test, mixedSqlNode);
+                    sqlNodes.add(ifSqlNode);
+
+                } else if (elementName.equals("where")) {
+                    //....
+                }//....
+                isDynamic = true;
+            }
+
+        }
+        return new MixedSqlNode(sqlNodes);
+    }
+
+
+    private Class<?> resolveType(String type) throws Exception {
+        return Class.forName(type);
+    }
+
+
+    private Document createDocument(InputStream inputStream) {
+        try {
+            SAXReader saxReader = new SAXReader();
+            Document document = saxReader.read(inputStream);
+            return document;
+        } catch (Exception e) {
+
+        }
+        return null;
+    }
+
+
+    private InputStream getResourceAsStream(String location) {
+        return this.getClass().getClassLoader().getResourceAsStream(location);
     }
 
 
@@ -135,240 +373,6 @@ public class MybatisV2 {
         }
         return null;
     }
-
-    private void parseConfiguration(Element rootElement) throws Exception {
-        Element envirsElement = rootElement.element("environments");
-        parseEnvironments(envirsElement);
-        Element mappersElement = rootElement.element("mappers");
-        parseMappers(mappersElement);
-    }
-
-    private void parseMappers(Element mappersElement) throws Exception {
-        List<Element> mappers = mappersElement.elements("mapper");
-        for (Element mapperElement : mappers) {
-            parseMapper(mapperElement);
-        }
-    }
-
-    /**
-     * 解析Mapper
-     *
-     * @param mapperElement
-     */
-    private void parseMapper(Element mapperElement) throws Exception {
-        String resource = mapperElement.attributeValue("resource");
-        InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(resource);
-        Document document = createDocument(resourceAsStream);
-        //按照映射文件的语义进行解析
-        parseXmlMapper(document.getRootElement());
-    }
-
-    private void parseXmlMapper(Element rootElement) throws Exception {
-        namespace = rootElement.attributeValue("namespace");
-        List<Element> selectElements = rootElement.elements("select");
-        for (Element selectElement : selectElements) {
-            parseStatementElement(selectElement);
-        }
-
-    }
-
-    /**
-     * MappedStatement
-     *
-     * @param selectElement
-     */
-    private void parseStatementElement(Element selectElement) throws Exception {
-        String statementId = selectElement.attributeValue("id");
-        if (statementId == null || statementId.equals("")) {
-            return;
-        }
-        //一个CRUD标签对应一个MappedStatement对象
-        //一个MappedStatement对象有一个statementId来标识，来保证唯一
-        //statementId=namespace+"."+CRUD标签的id属性
-
-        statementId = namespace + "." + statementId;
-        String statementType = selectElement.attributeValue("statementType");
-        statementType = statementType == null || statementType == "" ? "prepared" : statementType;
-
-        String parameterTypeName = selectElement.attributeValue("parameterType");
-        String resultTypeClassName = selectElement.attributeValue("resultType");
-
-        Class<?> parameterTypeClass = resolveType(parameterTypeName);
-        Class<?> resultTypeClass = resolveType(resultTypeClassName);
-        //TODO
-        /**
-         * SqlSource的封装过程
-         */
-        SqlSource sqlSource = createSqlSource(selectElement);
-
-        //TO DO 建议使用构建者模式去优化
-        MappedStatement mappedStatement = new MappedStatement(statementId, sqlSource, statementType,
-                parameterTypeClass, resultTypeClass);
-        configuration.addMappedStatements(statementId, mappedStatement);
-    }
-
-
-    /**
-     * SqlSource的封装过程
-     *
-     * @param selectElement
-     * @return
-     */
-    //TODO
-    private SqlSource createSqlSource(Element selectElement) {
-        SqlSource sqlSource = parseScriptNode(selectElement);
-        return sqlSource;
-    }
-
-    /**
-     * 用来处理脚本节点
-     * 处理select等标签下的SQL脚本
-     *
-     * @param selectElement
-     * @return
-     */
-    private SqlSource parseScriptNode(Element selectElement) {
-
-        //一、解析Sql脚本信息
-        MixedSqlNode rootSqlNode = parseDynamicTags(selectElement);
-        //二、
-        //将SqlNode封装到SqlSource对象当中
-        //思考？封装到哪个SqlSource对象中
-        //DynamicSqlSource
-        //RawSqlSource
-        SqlSource sqlSource = null;
-        if (isDynamic) {
-            //DynamicSqlSource
-            sqlSource = new DynamicSqlSource(rootSqlNode);
-        } else {
-            //RawSqlSource
-            sqlSource = new RawSqlSource(rootSqlNode);
-        }
-        return sqlSource;
-    }
-
-    /**
-     * 解析Sql脚本信息
-     *
-     * @param selectElement
-     * @return
-     */
-    private MixedSqlNode parseDynamicTags(Element selectElement) {
-        List<SqlNode> sqlNodes = new ArrayList<>();
-
-        //获取select标签的子节点的总数
-        int nodeCount = selectElement.nodeCount();
-        //遍历所有子节点
-        for (int i = 0; i < nodeCount; i++) {
-            Node node = selectElement.node(i);
-            //判断子节点是文本节点还是元素节点
-            if (node instanceof Text) {
-                //获取文本信息
-                String sqlText = node.getText();
-                if (sqlText == null || "".equals(sqlText)) {
-                    continue;
-                }
-                //将sql文本封装到TextSqlNode
-                TextSqlNode textSqlNode = new TextSqlNode(sqlText);
-                //判断文本中是否有${},这个文本是TextSqlNode给我提供的，
-                //那个是否包含${}，给我提供文本的人告诉我
-                //谁封装sqlText，谁对sqlText最了解，判断是否有${}
-                if (textSqlNode.isDynamic()) {
-                    //如果包含${}
-                    isDynamic = true;
-                    sqlNodes.add(textSqlNode);
-                } else {
-                    //如果不包含${}
-                    sqlNodes.add(new StaticTextSqlNode(sqlText));
-                }
-
-            } else if (node instanceof Element) {
-                //元素 :本身就是一个动态标签
-                Element element = (Element) node;
-                String elementName = element.getName();
-                if (elementName.equals("if")) {
-                    String test = element.attributeValue("test");
-                    /**
-                     * 递归封装SqlNode数据
-                     */
-                    MixedSqlNode mixedSqlNode = parseDynamicTags(element);
-                    //封装IfSqlNode数据
-                    IfSqlNode ifSqlNode = new IfSqlNode(test, mixedSqlNode);
-                    sqlNodes.add(ifSqlNode);
-
-                } else if (elementName.equals("where")) {
-                    //....
-                }//....
-                isDynamic = true;
-            }
-
-        }
-        return new MixedSqlNode(sqlNodes);
-    }
-
-    private Class<?> resolveType(String type) throws Exception {
-        return Class.forName(type);
-    }
-
-
-    private void parseEnvironments(Element envirsElement) {
-        String defaultId = envirsElement.attributeValue("default");
-        List<Element> environments = envirsElement.elements("environment");
-        for (Element element : environments) {
-            if (element.attributeValue("id").equals(defaultId)) {
-                parseDataSource(element);
-                break;
-
-            }
-        }
-    }
-
-    /**
-     * 解析数据源、放入Configuration中
-     *
-     * @param element
-     */
-    private void parseDataSource(Element element) {
-        Element dataSourceElement = element.element("dataSource");
-        String type = dataSourceElement.attributeValue("type");
-        if (type.equals("DBCP")) {
-            BasicDataSource dataSource = new BasicDataSource();
-            Properties properties = parseProperties(dataSourceElement);
-            dataSource.setDriverClassName(properties.getProperty("driver"));
-            dataSource.setUrl(properties.getProperty("url"));
-            dataSource.setUsername(properties.getProperty("username"));
-            dataSource.setPassword(properties.getProperty("password"));
-            configuration.setDataSource(dataSource);
-        }
-    }
-
-    private Properties parseProperties(Element dataSourceElement) {
-        Properties properties = new Properties();
-        List<Element> propertys = dataSourceElement.elements("property");
-        for (Element element : propertys) {
-            String name = element.attributeValue("name");
-            String value = element.attributeValue("value");
-            properties.put(name, value);
-        }
-        return properties;
-    }
-
-    private Document createDocument(InputStream inputStream) {
-        try {
-            SAXReader saxReader = new SAXReader();
-            Document document = saxReader.read(inputStream);
-            return document;
-        } catch (Exception e) {
-
-        }
-        return null;
-    }
-
-
-    private InputStream getResourceAsStream(String location) {
-        return this.getClass().getClassLoader().getResourceAsStream(location);
-    }
-
 
     /**
      * 处理结果集

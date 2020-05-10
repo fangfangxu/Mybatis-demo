@@ -1,6 +1,7 @@
 package day02.framework.utils;
 
-import com.kkb.mybatis.framework.sqlsource.ParameterMapping;
+
+import day02.framework.sqlsource.ParameterMapping;
 
 import java.util.ArrayList;
 import java.util.List;

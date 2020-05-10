@@ -3,6 +3,7 @@ package day02.framework.sqlnode.iface;
 import day02.framework.sqlnode.support.DynamicContext;
 
 /**
+ * 提供对封装的SqlNode信息进行解析处理
  * （1）提供封装SQL脚本片段的能力
  * （2）提供处理SQL脚本片段的能力
  */

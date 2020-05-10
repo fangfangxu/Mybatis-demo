@@ -9,6 +9,11 @@ public class ParameterMapping {
     //该参数对应的类型
     private Class<?> type;
 
+    public ParameterMapping(String name){
+        this.name=name;
+    }
+
+
     public String getName() {
         return name;
     }
