@@ -4,7 +4,6 @@ import day02.framework.sqlsource.BoundSql;
 
 /**
  * 提供对select/update/delete/insert标签内的SQL语句的处理
- * 存储了select/update/delete/insert标签内的sql语句最终被处理之【前】的SQL
  * 需经过getBoundSql处理才可以让JDBC直接执行
  */
 public interface SqlSource {

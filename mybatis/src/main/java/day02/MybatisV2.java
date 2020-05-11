@@ -239,7 +239,7 @@ public class MybatisV2 {
     private MixedSqlNode parseDynamicTags(Element selectElement) {
         List<SqlNode> sqlNodes = new ArrayList<>();
 
-        //获取select标签的子节点的总数
+        //获取select标签内的子节点的总数
         int nodeCount = selectElement.nodeCount();
         //遍历所有子节点
         for (int i = 0; i < nodeCount; i++) {
