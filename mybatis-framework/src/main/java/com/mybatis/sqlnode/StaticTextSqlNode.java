@@ -1,7 +1,8 @@
 package com.mybatis.sqlnode;
 
-import day03.framework.sqlnode.iface.SqlNode;
-import day03.framework.sqlnode.support.DynamicContext;
+
+import com.mybatis.sqlnode.iface.SqlNode;
+import com.mybatis.sqlnode.support.DynamicContext;
 
 /**
  * 封装不带有${}的SQL文本信息
