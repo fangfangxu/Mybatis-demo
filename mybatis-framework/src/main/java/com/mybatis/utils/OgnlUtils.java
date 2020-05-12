@@ -1,4 +1,4 @@
-package day03.framework.utils;
+package com.mybatis.utils;
 
 import ognl.Ognl;
 import ognl.OgnlContext;

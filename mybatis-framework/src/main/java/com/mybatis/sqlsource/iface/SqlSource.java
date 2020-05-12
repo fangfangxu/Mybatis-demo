@@ -1,6 +1,7 @@
-package day03.framework.sqlsource.iface;
+package com.mybatis.sqlsource.iface;
 
-import day03.framework.sqlsource.BoundSql;
+
+import com.mybatis.sqlsource.BoundSql;
 
 /**
  * 提供对select/update/delete/insert标签内的SQL语句的处理

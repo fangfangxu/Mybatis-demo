@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package day03.framework.utils;
+package com.mybatis.utils;
 
 /**
  * @author Clinton Begin

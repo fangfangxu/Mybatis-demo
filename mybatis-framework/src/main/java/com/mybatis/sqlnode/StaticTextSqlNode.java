@@ -1,4 +1,4 @@
-package day03.framework.sqlnode;
+package com.mybatis.sqlnode;
 
 import day03.framework.sqlnode.iface.SqlNode;
 import day03.framework.sqlnode.support.DynamicContext;

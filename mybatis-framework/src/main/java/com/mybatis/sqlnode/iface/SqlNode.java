@@ -1,6 +1,7 @@
-package day03.framework.sqlnode.iface;
+package com.mybatis.sqlnode.iface;
 
-import day03.framework.sqlnode.support.DynamicContext;
+
+import com.mybatis.sqlnode.support.DynamicContext;
 
 /**
  * 提供对封装的SqlNode信息进行解析处理

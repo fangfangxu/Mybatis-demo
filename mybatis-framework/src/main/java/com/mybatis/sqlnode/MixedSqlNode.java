@@ -1,7 +1,9 @@
-package day03.framework.sqlnode;
+package com.mybatis.sqlnode;
 
-import day03.framework.sqlnode.iface.SqlNode;
-import day03.framework.sqlnode.support.DynamicContext;
+
+
+import com.mybatis.sqlnode.iface.SqlNode;
+import com.mybatis.sqlnode.support.DynamicContext;
 
 import java.util.ArrayList;
 import java.util.List;

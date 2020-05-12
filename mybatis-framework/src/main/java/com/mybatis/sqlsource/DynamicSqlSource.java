@@ -1,11 +1,11 @@
-package day03.framework.sqlsource;
+package com.mybatis.sqlsource;
 
-import day03.framework.sqlnode.MixedSqlNode;
-import day03.framework.sqlnode.support.DynamicContext;
-import day03.framework.sqlsource.iface.SqlSource;
-import day03.framework.utils.GenericTokenParser;
-import day03.framework.utils.ParameterMappingTokenHandler;
 
+import com.mybatis.sqlnode.MixedSqlNode;
+import com.mybatis.sqlnode.support.DynamicContext;
+import com.mybatis.sqlsource.iface.SqlSource;
+import com.mybatis.utils.GenericTokenParser;
+import com.mybatis.utils.ParameterMappingTokenHandler;
 
 /**
  * 封装带有${}或者动态标签的整个SQL信息

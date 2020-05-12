@@ -1,6 +1,7 @@
-package day03.framework.sqlsource;
+package com.mybatis.sqlsource;
 
-import day03.framework.sqlsource.iface.SqlSource;
+
+import com.mybatis.sqlsource.iface.SqlSource;
 
 import java.util.List;
 

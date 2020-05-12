@@ -1,7 +1,8 @@
-package day03.framework.utils;
+package com.mybatis.utils;
 
 
-import day03.framework.sqlsource.ParameterMapping;
+
+import com.mybatis.sqlsource.ParameterMapping;
 
 import java.util.ArrayList;
 import java.util.List;

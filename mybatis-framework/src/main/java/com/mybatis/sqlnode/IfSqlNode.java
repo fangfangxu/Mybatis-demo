@@ -1,8 +1,9 @@
-package day03.framework.sqlnode;
+package com.mybatis.sqlnode;
 
-import day03.framework.sqlnode.iface.SqlNode;
-import day03.framework.sqlnode.support.DynamicContext;
-import day03.framework.utils.OgnlUtils;
+
+import com.mybatis.sqlnode.iface.SqlNode;
+import com.mybatis.sqlnode.support.DynamicContext;
+import com.mybatis.utils.OgnlUtils;
 
 /**
  * 封装if标签对应的sql脚本信息

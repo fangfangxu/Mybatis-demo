@@ -1,4 +1,4 @@
-package day03.framework.config;
+package com.mybatis.config;
 
 import javax.sql.DataSource;
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package day03.framework.sqlsource;
+package com.mybatis.sqlsource;
 
 import java.util.ArrayList;
 import java.util.List;

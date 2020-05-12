@@ -1,11 +1,12 @@
-package day03.framework.sqlnode;
+package com.mybatis.sqlnode;
 
-import day03.framework.sqlnode.iface.SqlNode;
-import day03.framework.sqlnode.support.DynamicContext;
-import day03.framework.utils.GenericTokenParser;
-import day03.framework.utils.OgnlUtils;
-import day03.framework.utils.SimpleTypeRegistry;
-import day03.framework.utils.TokenHandler;
+
+import com.mybatis.sqlnode.iface.SqlNode;
+import com.mybatis.sqlnode.support.DynamicContext;
+import com.mybatis.utils.GenericTokenParser;
+import com.mybatis.utils.OgnlUtils;
+import com.mybatis.utils.SimpleTypeRegistry;
+import com.mybatis.utils.TokenHandler;
 
 /**
  * 封装带有${}的SQL文本信息

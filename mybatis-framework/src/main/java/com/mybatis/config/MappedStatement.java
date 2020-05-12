@@ -1,6 +1,7 @@
-package day03.framework.config;
+package com.mybatis.config;
 
-import day03.framework.sqlsource.iface.SqlSource;
+
+import com.mybatis.sqlsource.iface.SqlSource;
 
 /**
  * 映射文件中的CRUD片段

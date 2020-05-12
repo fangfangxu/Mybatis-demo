@@ -1,4 +1,4 @@
-package day03.framework.sqlsource;
+package com.mybatis.sqlsource;
 
 /**
  * 主要用来存储解析#{}时获取到的参数名称和参数类型
